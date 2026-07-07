@@ -1,6 +1,6 @@
 .idea
 
-# Custom project sources (clone your forks into these directories)
-/saleor/*
-/dashboard/*
-/storefront/*
+# Custom project sources (separate git repos — clone forks here)
+/saleor/
+/dashboard/
+/storefront/
