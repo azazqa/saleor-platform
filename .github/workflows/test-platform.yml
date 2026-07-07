@@ -7,6 +7,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Check project sources
+        run: |
+          test -f saleor/Dockerfile || (echo "saleor/ not found — clone your fork before running CI" && exit 1)
       - name: Build
         run: docker compose build
       - name: Run backend tests

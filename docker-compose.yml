@@ -1,6 +1,13 @@
+x-saleor-build: &saleor-build
+  context: ./saleor
+  dockerfile: Dockerfile
+  args:
+    STATIC_URL: /static/
+
 services:
   api:
-    image: ghcr.io/saleor/saleor:3.23
+    build: *saleor-build
+    image: saleor-platform-saleor
     ports:
       - 8000:8000
     restart: unless-stopped
@@ -19,14 +26,25 @@ services:
       - common.env
       - backend.env
     environment:
-      - DASHBOARD_URL=http://localhost:9000/
+      - DASHBOARD_URL=http://localhost:9000/dashboard/
+      - STOREFRONT_URL=http://localhost:3000/
       - ALLOWED_HOSTS=localhost,127.0.0.1,api
 
   dashboard:
-    image: ghcr.io/saleor/saleor-dashboard:3.23
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+      args:
+        API_URL: http://localhost:8000/graphql/
+        APP_MOUNT_URI: /dashboard/
+        STATIC_URL: /dashboard/
+    image: saleor-platform-dashboard
     ports:
       - 9000:80
     restart: unless-stopped
+    environment:
+      - API_URL=http://localhost:8000/graphql/
+      - APP_MOUNT_URI=/dashboard/
 
   db:
     image: library/postgres:15-alpine
@@ -43,7 +61,7 @@ services:
       - POSTGRES_PASSWORD=saleor
 
   cache:
-    image: valkey/valkey:8.1-alpine
+    image: valkey/valkey:9.1-alpine
     ports:
       - 6379:6379
     restart: unless-stopped
@@ -53,7 +71,8 @@ services:
       - saleor-cache:/data
 
   worker:
-    image: ghcr.io/saleor/saleor:3.23
+    build: *saleor-build
+    image: saleor-platform-saleor
     command: celery -A saleor --app=saleor.celeryconf:app worker --loglevel=info -B
     restart: unless-stopped
     networks:
@@ -62,6 +81,7 @@ services:
       - common.env
       - backend.env
     depends_on:
+      - api
       - cache
       - mailpit
     volumes:

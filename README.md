@@ -5,173 +5,136 @@
 </div>
 
 <div align="center">
-  <p>Run all Saleor services from one repository.</p>
+  <p>커스텀 Saleor API·Dashboard를 Docker로 실행하고, Storefront는 별도로 구동합니다.</p>
 </div>
 
-<div align="center">
- Get to know Saleor: <br>
-  <a href="https://saleor.typeform.com/talk-with-us?utm_source=github&utm_medium=readme&utm_campaign=repo_platform">Talk to a human</a>
-  <span> | </span>
-  <a href="https://cloud.saleor.io/signup?utm_source=github&utm_medium=readme&utm_campaign=repo_platform">Talk to the API</a>
-</div>
-
-<br>
-
-<div align="center">
-  <a href="https://saleor.io/">🏠 Website</a>
-  <span> • </span>
-  <a href="https://docs.saleor.io/docs/3.x/">📚 Docs</a>
-  <span> • </span>
-  <a href="https://saleor.io/blog/">📰 Blog</a>
-  <span> • </span>
-  <a href="https://twitter.com/getsaleor">🐦 Twitter</a>
-</div>
-
-<div align="center">
-  <a href="https://githubbox.com/saleor/saleor-platform">🔎 Explore Code</a>
-</div>
-
-## About
-
-### What is Saleor Platform?
-
-Saleor Platform is the easiest way to start local development with all the major Saleor services:
-- [Core GraphQL API](https://github.com/saleor/saleor)
-- [Dashboard](https://github.com/saleor/saleor-dashboard)
-- Mailpit (Test email interface)
-- Jaeger (APM)
-- The necessary databases, cache, etc.
-
-*Keep in mind this repository is for local development only and is not meant to be deployed in any production environment! If you're not a developer and just want to try out Saleor you can check our [live demo](https://demo.saleor.io/).*
-
-## Requirements
-1. [Docker](https://docs.docker.com/install/)
-
-## How to clone the repository?
-
-To clone the repository, run the following command
+## 프로젝트 구조
 
 ```
-git clone https://github.com/saleor/saleor-platform.git
+saleor-platform/
+├── docker-compose.yml   # API, Dashboard, Worker, DB, Cache …
+├── backend.env
+├── common.env
+├── saleor/              # Saleor Core (API, Worker)
+├── dashboard/           # Saleor Dashboard
+└── storefront/          # Storefront (로컬 dev / 스테이징·운영은 독립 배포)
 ```
 
-## How to run it?
+| 디렉터리 | 역할 | 실행 방식 | 포트 |
+|---------|------|----------|------|
+| `saleor/` | GraphQL API, Celery Worker | Docker Compose | 8000 |
+| `dashboard/` | 관리자 대시보드 | Docker Compose | 9000 |
+| `storefront/` | 고객용 스토어프론트 | **로컬:** `pnpm dev` / **스테이징·운영:** 독립 서비스 | 3000 |
 
-1. Project is using shared folders to enable live code reloading. For `macOS` and `Windows` users following steps are required to run `Docker compose`:
-    - Add the cloned `saleor-platform` directory to Docker shared directories (Preferences -> Resources -> File sharing).
-    - In Docker preferences dedicate at least 5 GB of memory (Preferences -> Resources -> Advanced).
+Storefront는 [saleor-platform](https://github.com/saleor/saleor-platform)과 달리 Compose에 포함하지 않습니다.
 
+## 사전 요구 사항
 
-2. Go to the cloned directory:
+**Platform (Docker)**
+
+- [Docker](https://docs.docker.com/install/)
+- [Docker Compose](https://docs.docker.com/compose/)
+
+**Storefront (로컬 개발)**
+
+- Node.js (storefront `package.json` engines 참고)
+- [pnpm](https://pnpm.io/)
+
+## 프로젝트 추가
+
 ```shell
-cd saleor-platform
+git clone <your-saleor-fork-url> saleor
+git clone <your-dashboard-fork-url> dashboard
+git clone <your-storefront-fork-url> storefront
 ```
 
-3. Apply Django migrations:
+## Platform 실행 (API + Dashboard)
+
+1. **macOS / Windows:** Docker File sharing에 이 디렉터리 추가, 메모리 5 GB 이상
+
+2. 빌드 및 기동:
+
 ```shell
+docker compose build
 docker compose run --rm api python3 manage.py migrate
-```
-
-4. Populate the database with example data and create the admin user:
-```shell
 docker compose run --rm api python3 manage.py populatedb --createsuperuser
-```
-*Note that `--createsuperuser` argument creates an admin account for `admin@example.com` with the password set to `admin`.*
-
-5. Run the application:
-```shell
 docker compose up
 ```
 
-## Where is the application running?
-- Saleor Core (API) - http://localhost:8000
-- Saleor Dashboard - http://localhost:9000
-- Jaeger UI (APM) - http://localhost:16686
-- Mailpit (Test email interface) - http://localhost:8025
+| 서비스 | URL |
+|--------|-----|
+| Saleor Core (API) | http://localhost:8000 |
+| Saleor Dashboard | http://localhost:9000/dashboard/ |
+| Jaeger UI | http://localhost:16686 |
+| Mailpit | http://localhost:8025 |
 
-# Troubleshooting
+## Storefront (로컬 개발)
 
-- [How to solve issues with lack of available space or build errors after an update](#how-to-solve-issues-with-lack-of-available-space-or-build-errors-after-an-update)
-- [How to run application parts?](#how-to-run-application-parts)
-
-## How to solve issues with lack of available space or build errors after an update
-
-Most of the time both issues can be solved by cleaning up space taken by old containers. After that, we build again whole platform. 
-
-
-1. Make sure docker stack is not running
-```shell
-docker compose stop
-```
-
-2. Remove existing volumes
-
-**Warning!** Proceeding will remove also your database container! If you need existing data, please remove only services that cause problems! https://docs.docker.com/compose/reference/rm/
-```shell
-docker compose rm
-```
-
-3. Build fresh containers 
-```shell
-docker compose build
-```
-
-4. Now you can run a fresh environment using commands from `How to run it?` section. Done!
-
-### Still no available space
-
-If you are getting issues with lack of available space, consider pruning your docker cache:
-
-**Warning!** This will remove:
-  - all stopped containers
-  - all networks not used by at least one container
-  - all dangling images
-  - all dangling build cache 
-  
-  More info: https://docs.docker.com/engine/reference/commandline/system_prune/
-  
-<details><summary>I've been warned</summary>
-<p>
+Platform(API)이 실행 중인 상태에서:
 
 ```shell
-docker system prune
+cd storefront
+cp .env.example .env.local
 ```
 
-</p>
-</details>
+`.env.local` 최소 설정:
 
-### Issues with migrations after changing the versions - resetting the database
-
-Please submit an issue ticket if you spot issues with database migrations during the version update. 
-
-When testing developer releases or making local changes, you might end up in a state where you would like to reset the database completely. Since its state is persisted in the mounted volume, you'll need to use a dedicated command.
-
-**Warning!** This command will remove all data already stored in the database.
-
-<details><summary>I've been warned</summary>
-<p>
+```env
+NEXT_PUBLIC_SALEOR_API_URL=http://localhost:8000/graphql/
+NEXT_PUBLIC_STOREFRONT_URL=http://localhost:3000
+NEXT_PUBLIC_DEFAULT_CHANNEL=default-channel
+```
 
 ```shell
-docker compose down --volumes db
+pnpm install
+pnpm dev
 ```
 
-</p>
-</details>
-   
-## How to run application parts?
-  - `docker compose up api worker` for backend services only
-  - `docker compose up` for backend and frontend services
+→ http://localhost:3000
 
-## Feedback
+로컬 dev 모드(`pnpm dev`)에서는 Next.js가 호스트에서 API(`localhost:8000`)에 접근하므로 **이미지 최적화(`/_next/image`)가 정상 동작**합니다.
 
-If you have any questions or feedback, do not hesitate to contact us via [GitHub Discussions](https://github.com/saleor/saleor/discussions).
+`.env.development`에 K8s용 `SALEOR_INTERNAL_API_URL`이 있으므로, 로컬에서는 `.env.local`에 아래를 반드시 설정하세요:
 
-## License
+```env
+NEXT_PUBLIC_SALEOR_API_URL=http://localhost:8000/graphql/
+SALEOR_INTERNAL_API_URL=http://localhost:8000/graphql/
+```
 
-Disclaimer: Everything you see here is open and free to use as long as you comply with the [license](https://github.com/saleor/saleor-platform/blob/main/LICENSE). There are no hidden charges. We promise to do our best to fix bugs and improve the code.
+## Storefront (스테이징 / 운영)
 
-Some situations do call for extra code; we can cover exotic use cases or build you a custom e-commerce appliance.
+Storefront는 Platform Compose와 분리된 **독립 서비스**로 배포합니다.
 
-#### Crafted with ❤️ by [Saleor Commerce](https://saleor.io/)
+- `storefront/Dockerfile`로 컨테이너 이미지 빌드 후 배포, 또는
+- Vercel / K8s 등 별도 호스팅
 
-hello@saleor.io
+환경 변수 예 (스테이징):
+
+```env
+NEXT_PUBLIC_SALEOR_API_URL=https://api.staging.example.com/graphql/
+NEXT_PUBLIC_STOREFRONT_URL=https://shop.staging.example.com
+NEXT_PUBLIC_DEFAULT_CHANNEL=default-channel
+# K8s 등 내부 API가 다른 경우
+SALEOR_INTERNAL_API_URL=http://saleor-api:8000/graphql/
+```
+
+Platform `api` 서비스의 `STOREFRONT_URL`을 스테이징/운영 storefront URL로 맞춰 주세요.
+
+## 부분 실행
+
+```shell
+docker compose up api worker          # 백엔드만
+docker compose up api worker dashboard
+```
+
+## 트러블슈팅
+
+```shell
+docker compose stop && docker compose rm && docker compose build
+docker compose down --volumes db      # DB 초기화 (데이터 삭제)
+docker system prune                   # Docker 캐시 정리
+```
+
+## 라이선스
+
+[saleor-platform LICENSE](LICENSE)를 따릅니다.
