@@ -2,5 +2,5 @@
 
 # Custom project sources (separate git repos — clone forks here)
 /saleor/
-/dashboard/
+/saleor-dashboard/
 /storefront/

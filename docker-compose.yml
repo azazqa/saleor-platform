@@ -28,11 +28,11 @@ services:
     environment:
       - DASHBOARD_URL=http://localhost:9000/dashboard/
       - STOREFRONT_URL=http://localhost:3000/
-      - ALLOWED_HOSTS=localhost,127.0.0.1,api
+      - ALLOWED_HOSTS=localhost,127.0.0.1,api,saleor-api.klms.co.kr
 
   dashboard:
     build:
-      context: ./dashboard
+      context: ./saleor-dashboard
       dockerfile: Dockerfile
       args:
         API_URL: http://localhost:8000/graphql/
