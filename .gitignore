@@ -1,6 +1,9 @@
 .idea
+/.cursor/
 
 # Custom project sources (separate git repos — clone forks here)
 /saleor/
 /saleor-dashboard/
 /storefront/
+
+/tosspayments-app/
