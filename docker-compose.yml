@@ -29,6 +29,7 @@ services:
       - DASHBOARD_URL=http://localhost:9000/dashboard/
       - STOREFRONT_URL=http://localhost:3000/
       - ALLOWED_HOSTS=localhost,127.0.0.1,api,saleor-api.klms.co.kr,dashboard.klms.co.kr,tosspayments.klms.co.kr
+      - ENABLE_SSL=True
 
   dashboard:
     build:
@@ -80,6 +81,8 @@ services:
     env_file:
       - common.env
       - backend.env
+    environment:
+      - ENABLE_SSL=True
     depends_on:
       - api
       - cache
