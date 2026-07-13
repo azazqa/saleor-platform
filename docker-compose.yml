@@ -28,7 +28,7 @@ services:
     environment:
       - DASHBOARD_URL=http://localhost:9000/dashboard/
       - STOREFRONT_URL=http://localhost:3000/
-      - ALLOWED_HOSTS=localhost,127.0.0.1,api,api.klms.co.kr,dashboard.klms.co.kr,tosspayments.klms.co.kr
+      - ALLOWED_HOSTS=localhost,127.0.0.1,api,saleor-api.klms.co.kr,dashboard.klms.co.kr,tosspayments.klms.co.kr
 
   dashboard:
     build:
