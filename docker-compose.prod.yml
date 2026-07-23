@@ -1,0 +1,20 @@
+# Production — use explicitly:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+services:
+  api:
+    environment:
+      - DASHBOARD_URL=https://saleor-dashboard.klms.co.kr/dashboard/
+      - STOREFRONT_URL=https://saleor.klms.co.kr/
+      - ALLOWED_HOSTS=localhost,127.0.0.1,api,saleor-api.klms.co.kr,saleor-dashboard.klms.co.kr,tosspayments.klms.co.kr
+      - ENABLE_SSL=True
+
+  worker:
+    environment:
+      - ENABLE_SSL=True
+
+  dashboard:
+    build:
+      args:
+        API_URL: https://saleor-api.klms.co.kr/graphql/
+    environment:
+      - API_URL=https://saleor-api.klms.co.kr/graphql/

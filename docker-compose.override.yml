@@ -1,0 +1,23 @@
+# Local development — merged automatically by `docker compose up`
+services:
+  api:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - DASHBOARD_URL=http://localhost:9000/dashboard/
+      - STOREFRONT_URL=http://localhost:3000/
+      - ALLOWED_HOSTS=localhost,127.0.0.1,api
+      - ENABLE_SSL=False
+
+  worker:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - ENABLE_SSL=False
+
+  dashboard:
+    build:
+      args:
+        API_URL: http://localhost:8000/graphql/
+    environment:
+      - API_URL=http://localhost:8000/graphql/
