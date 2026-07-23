@@ -26,9 +26,10 @@ services:
       - common.env
       - backend.env
     environment:
-      - DASHBOARD_URL=http://localhost:9000/dashboard/
-      - STOREFRONT_URL=http://localhost:3000/
-      - ALLOWED_HOSTS=localhost,127.0.0.1,api,saleor-api.klms.co.kr,dashboard.klms.co.kr,tosspayments.klms.co.kr
+      - DASHBOARD_URL=https://saleor-dashboard.klms.co.kr/dashboard/
+      - STOREFRONT_URL=https://saleor.klms.co.kr/
+      - ALLOWED_HOSTS=localhost,127.0.0.1,api,saleor-api.klms.co.kr,saleor-dashboard.klms.co.kr,tosspayments.klms.co.kr
+      # 로컬 개발: False / 운영: True (웹훅·절대 URL의 http/https 스킴 결정)
       - ENABLE_SSL=True
 
   dashboard:
@@ -36,7 +37,7 @@ services:
       context: ./saleor-dashboard
       dockerfile: Dockerfile
       args:
-        API_URL: http://localhost:8000/graphql/
+        API_URL: https://saleor.klms.co.kr/graphql/
         APP_MOUNT_URI: /dashboard/
         STATIC_URL: /dashboard/
     image: saleor-platform-dashboard
@@ -44,7 +45,7 @@ services:
       - 9000:80
     restart: unless-stopped
     environment:
-      - API_URL=http://localhost:8000/graphql/
+      - API_URL=https://saleor.klms.co.kr/graphql/
       - APP_MOUNT_URI=/dashboard/
 
   db:
@@ -82,6 +83,7 @@ services:
       - common.env
       - backend.env
     environment:
+      # 로컬 개발: False / 운영: True (api와 동일하게 맞출 것)
       - ENABLE_SSL=True
     depends_on:
       - api
