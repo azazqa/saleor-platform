@@ -8,12 +8,14 @@ services:
       - STOREFRONT_URL=http://localhost:3000/
       - ALLOWED_HOSTS=localhost,127.0.0.1,api
       - ENABLE_SSL=False
+      - HTTP_IP_FILTER_ENABLED=False
 
   worker:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
       - ENABLE_SSL=False
+      - HTTP_IP_FILTER_ENABLED=False
 
   dashboard:
     build:

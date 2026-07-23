@@ -7,10 +7,12 @@ services:
       - STOREFRONT_URL=https://saleor.klms.co.kr/
       - ALLOWED_HOSTS=localhost,127.0.0.1,api,saleor-api.klms.co.kr,saleor-dashboard.klms.co.kr,tosspayments.klms.co.kr
       - ENABLE_SSL=True
+      - HTTP_IP_FILTER_ENABLED=True
 
   worker:
     environment:
       - ENABLE_SSL=True
+      - HTTP_IP_FILTER_ENABLED=True
 
   dashboard:
     build:
