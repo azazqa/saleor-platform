@@ -37,7 +37,7 @@ services:
       context: ./saleor-dashboard
       dockerfile: Dockerfile
       args:
-        API_URL: https://saleor.klms.co.kr/graphql/
+        API_URL: https://saleor-api.klms.co.kr/graphql/
         APP_MOUNT_URI: /dashboard/
         STATIC_URL: /dashboard/
     image: saleor-platform-dashboard
@@ -45,7 +45,7 @@ services:
       - 9000:80
     restart: unless-stopped
     environment:
-      - API_URL=https://saleor.klms.co.kr/graphql/
+      - API_URL=https://saleor-api.klms.co.kr/graphql/
       - APP_MOUNT_URI=/dashboard/
 
   db:
